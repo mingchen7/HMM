@@ -162,12 +162,12 @@ Enumeration = function(x,mu,sigma,pi,A)
 }
 
 # FOR TEST
-setwd("C:\\Users\\mingchen7\\Documents\\GitHub\\HMM");
-load('LinkTT_10hours.RData');
-source('Parameters.R');
-
-# x=c(115,77.2,56.2,34.4,78.4);
-x=c(36.37660,98.23747,36.23666,89.58783,100.86144);
-
-Viterbi(x,mu3,sigma3,Pi3,A);
-Enumeration(x,mu3,sigma3,Pi3,A);
+# setwd("C:\\Users\\mingchen7\\Documents\\GitHub\\HMM");
+# load('LinkTT_10hours.RData');
+# source('Parameters.R');
+# 
+# # x=c(115,77.2,56.2,34.4,78.4);
+# x=c(36.37660,98.23747,36.23666,89.58783,100.86144);
+# 
+# Viterbi(x,mu3,sigma3,Pi3,A);
+# Enumeration(x,mu3,sigma3,Pi3,A);

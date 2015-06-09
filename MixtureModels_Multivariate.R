@@ -108,9 +108,9 @@ GassuianMixture_Multi = function(data, numCluster)
             
         }            
         print(sprintf('iter = %d  loglikelihood = %f', iter, LogLikelihood[iter]));
-        print(Pi);
-        print(Mu);
-        print(Sigma);
+#         print(Pi);
+#         print(Mu);
+#         print(Sigma);
     }
             
     plot(x = 1:length(LogLikelihood), y = LogLikelihood, xlab='iteration',type = 'l');
@@ -125,6 +125,6 @@ GassuianMixture_Multi = function(data, numCluster)
 }
 
 # example: 
-setwd("C:\\Users\\mingchen7\\Documents\\GitHub\\HiddenMarkovModel");
+setwd("C:\\Users\\mingchen7\\Documents\\GitHub\\HMM");
 load('LinkTT_10hours.RData'); 
-GassuianMixture_Multi(tt.WB[,c(3:7)], 5);
+GassuianMixture_Multi(tt.WB[,c(3:7)],3);

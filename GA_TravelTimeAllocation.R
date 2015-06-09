@@ -111,7 +111,7 @@ GA.MainFunction = function(mu,sigma,Gamma,A,y.obs,model)
       }
       
       iter = iter + 1;
-      print(c(iter,objValue.new));
+      # print(c(iter,objValue.new));
       
       if(iter > maxiter)
       {
@@ -403,15 +403,11 @@ GA.RankSelection = function(generation)
 }
 
 
-setwd("C:\\Users\\mingchen7\\Documents\\GitHub\\HMM");
-source('Parameters.R');
-source('HMM_FindMostprobableSequence.R');
+# setwd("C:\\Users\\mingchen7\\Documents\\GitHub\\HMM");
+# source('Parameters.R');
+# source('HMM_FindMostprobableSequence.R');
 
-# call UNIVARIATE GMM
+# examples
 # GA.MainFunction(mu,sigma,Pi,NULL,361.3,'Univariate')
-
-# call MULTIVARIATE GMM
 # GA.MainFunction(mu2,sigma2,Pi2,NULL,361.3,'Multivariate')
-
-# call HMM
-GA.MainFunction(mu3,sigma3,Pi3,A,361.3,'HMM')
+# GA.MainFunction(mu3,sigma3,Pi3,A,361.3,'HMM')

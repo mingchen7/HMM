@@ -1,5 +1,4 @@
 library(ggplot2)
-library(lubridate)
 library(MASS)
 
 # Evaluate the emission probability
@@ -337,14 +336,14 @@ HiddenMarkovModel = function(data,mu.init,sigma.init,pi.init,A.init)
     # CompLogLikelihood = evalCompleteLikelihood(data,mu,sigma,pi,A,gamma,ksi);
         
     print(sprintf('iter = %d  loglikelihood = %f', iter, LogLikelihood[iter]));
-    print("Pi:")
-    print(pi);
-    print("Mu:");
-    print(mu);
-    print("Sigma:");
-    print(sigma);
-    print("Transition matrix:");
-    print(A);
+#     print("Pi:")
+#     print(pi);
+#     print("Mu:");
+#     print(mu);
+#     print("Sigma:");
+#     print(sigma);
+#     print("Transition matrix:");
+#     print(A);
   }
   
   # plot log-likelihood
@@ -362,27 +361,14 @@ HiddenMarkovModel = function(data,mu.init,sigma.init,pi.init,A.init)
 
 # example: 
 setwd("C:\\Users\\mingchen7\\Documents\\GitHub\\HMM");
-
-# loading data
 load('LinkTT_10hours.RData')
 data = tt.WB[,c(3:7)];
 
 # initializing parameters
-mu.init = list();
-mu.init[[1]] = c(89.19,39.76,58.95);
-mu.init[[2]] = c(87.01,58.93,43.84);
-mu.init[[3]] = c(58.78,39.60,35.60);
-mu.init[[4]] = c(106.65,81.66,39.64);
-mu.init[[5]] = c(98.76526,170.08265);
-
-sigma.init = list()
-sigma.init[[1]] = c(102.749,3.165,123.500);
-sigma.init[[2]] = c(252.64,24.81,5.39);
-sigma.init[[3]] = c(59.14,8.61,2.78);
-sigma.init[[4]] = c(34.10,498.01,14.03);
-sigma.init[[5]] = c(36.66009,72.18567);
-
-pi.init = c(0.345,0.238,0.417);
+source('Parameters.R')
+mu.init = mu;
+sigma.init = sigma;
+pi.init = Pi[[1]];  # first link
 
 D = length(mu.init);
 A.init = list();

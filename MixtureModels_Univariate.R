@@ -71,9 +71,9 @@ GassuianMixture = function(data, numCluster)
         #              Pi[1], Pi[2], Mu[1], Mu[2], Sigma[1], Sigma[2],  LogLikelihood[iter]));
         
         print(sprintf('iter = %d  loglikelihood = %f', iter, LogLikelihood[iter]));
-        print(Pi);
-        print(Mu);
-        print(Sigma);
+#         print(Pi);
+#         print(Mu);
+#         print(Sigma);
     }
     
     
@@ -109,18 +109,12 @@ GassuianMixture = function(data, numCluster)
     Estimation$Pi = Pi;
     Estimation$Mu = Mu;
     Estimation$Sigma = Sigma;
-    Estimation$loglikelihood = LogLikelihood;
+    Estimation$loglikelihood = LogLikelihood[length(LogLikelihood)];
     
     return(Estimation);
 }
 
 # example: 
-setwd("C:\\Users\\mingchen7\\Documents\\GitHub\\HiddenMarkovModel");
+setwd("C:\\Users\\mingchen7\\Documents\\GitHub\\HMM");
 load('LinkTT_10hours.RData')
-GassuianMixture(tt.WB$tt2,3)
-
-
-# hist(tt.WB$tt6,breaks=100)
-# mix.fit1<-normalmixEM(tt.WB$tt6,lambda=0.5,mu=c(80,150),sigma=c(50,50),maxit=3000)
-# plot(mix.fit1,density=TRUE,breaks=100,cex.axis=1.2,cex.lab=1.2,cex.main=1.4,main2="Mixure Gaussian model",xlab2="Travel Time")
-# summary(mix.fit1)
+GassuianMixture(tt.WB$tt4,2)
