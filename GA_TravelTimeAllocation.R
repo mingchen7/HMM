@@ -1,27 +1,8 @@
-# Evaluate log-likelihood function
-# mu: kxM matrix
-# sigma: MxMxk array
-# Gamma: 1xM vector
-# x: 1xM vector
+# **IMPORTANT**
+# Functions to evaluate fitness
+# Depending on different models
 
-EvaluationFunction.MultiGMM = function(mu, sigma, Gamma, X)
-{
-  sum = 0;
-  K = nrow(mu);
-  for(k in 1:K)
-  {
-    D = ncol(mu);    
-    const = -(D/2)*log(2*pi) - 0.5*log(det(sigma[,,k]));
-    Xm = X - mu[k,];
-    Xm = matrix(Xm,nrow=1,ncol=D)
-    lg.px = const - 0.5 * diag(Xm %*% solve(sigma[,,k]) %*% t(Xm));
-    sum = sum + Gamma[k]*exp(lg.px);    
-  }
-  
-  return((-1)*log(sum));
-}
-
-EvaluationFunction.UniGMM = function(mu,sigma,Gamma,X)
+EvaluationFunction.UniGMM = function(mu,sigma,Gamma,x)
 {
   Sum = 0;
   D = length(mu);
@@ -30,7 +11,7 @@ EvaluationFunction.UniGMM = function(mu,sigma,Gamma,X)
     K = length(mu[[i]]);
     for(k in 1:K)
     {
-      Sum = Sum + Gamma[[i]][k] * dnorm(X[i], mu[[i]][k], sd = sqrt(sigma[[i]][k]));
+      Sum = Sum + Gamma[[i]][k] * dnorm(x[i], mu[[i]][k], sd = sqrt(sigma[[i]][k]));
     }
   }
   
@@ -38,8 +19,37 @@ EvaluationFunction.UniGMM = function(mu,sigma,Gamma,X)
   return(-LogLikelihood);
 }
 
+EvaluationFunction.MultiGMM = function(mu, sigma, Gamma, x)
+{
+  sum = 0;
+  K = nrow(mu);
+  for(k in 1:K)
+  {
+    D = ncol(mu);    
+    const = -(D/2)*log(2*pi) - 0.5*log(det(sigma[,,k]));
+    Xm = x - mu[k,];
+    Xm = matrix(Xm,nrow=1,ncol=D)
+    lg.px = const - 0.5 * diag(Xm %*% solve(sigma[,,k]) %*% t(Xm));
+    sum = sum + Gamma[k]*exp(lg.px);    
+  }
+  
+  return((-1)*log(sum));
+}
 
-GA.MainFunction = function(mu,sigma,Gamma,y.obs,model)
+
+EvaluationFunction.HMM = function(mu,sigma,pi,A,x)
+{
+  LogLikelihood = -Inf;
+  LogLikelihood = Viterbi(x,mu,sigma,pi,A);
+  return(-LogLikelihood);
+}
+
+# THIS FUNCTION STARTS THE GA ALGORITHM
+# mu: mean
+# sigma: variance/covariance
+# Gamma: pi
+# A:transition matrix for HMM
+GA.MainFunction = function(mu,sigma,Gamma,A,y.obs,model)
 {
     set.seed(y.obs);    
     iter = 1;    
@@ -48,7 +58,7 @@ GA.MainFunction = function(mu,sigma,Gamma,y.obs,model)
     maxiter = 100;
     objValue = 0;
     
-    if(model =='Univariate')
+    if((model =='Univariate') | (model == 'HMM'))
     {
       D = length(mu);  
     }
@@ -58,8 +68,9 @@ GA.MainFunction = function(mu,sigma,Gamma,y.obs,model)
     }
     
     InitialGen = matrix(nrow=50, ncol=D);
-            
-    for(i in 1:2)
+    
+    # initialize a population with size of 50
+    for(i in 1:50)
     {
       rnd = runif(D);
       rnd = (rnd / sum(rnd)) * y.obs;
@@ -68,30 +79,39 @@ GA.MainFunction = function(mu,sigma,Gamma,y.obs,model)
     
     if(model =='Univariate')
     {
-      objValue.new = EvaluationFunction.UniGMM(mu, sigma, Gamma, InitialGen[1,])
+      objValue.new = EvaluationFunction.UniGMM(mu,sigma,Gamma,InitialGen[1,])
     }
+    else if(model == 'Multivariate')
+    {
+      objValue.new = EvaluationFunction.MultiGMM(mu,sigma,Gamma,InitialGen[1,]);
+    }      
     else
     {
-      objValue.new = EvaluationFunction.MultiGMM(mu, sigma, Gamma, InitialGen[1,]);
-    }                
+      objValue.new = EvaluationFunction.HMM(mu,sigma,Gamma,A,InitialGen[1,]);
+    }
         
     
     while(((objValue.new - objValue) > tol) | (iter < miniter))
     {
-      InitialGen = GA.NewGeneration(mu,sigma,Gamma,InitialGen,y.obs,D,model);
+      # Call for generating a new population
+      InitialGen = GA.NewGeneration(mu,sigma,Gamma,A,InitialGen,y.obs,D,model);
       objValue = objValue.new;
       
       if(model =='Univariate')
       {
-        objValue.new = EvaluationFunction.UniGMM(mu, sigma, Gamma, InitialGen[1,]);
+        objValue.new = EvaluationFunction.UniGMM(mu,sigma,Gamma,InitialGen[1,]);
       }
+      else if(model == 'Multivariate')
+      {
+        objValue.new = EvaluationFunction.MultiGMM(mu,sigma,Gamma,InitialGen[1,]);
+      }      
       else
       {
-        objValue.new = EvaluationFunction.MultiGMM(mu, sigma, Gamma, InitialGen[1,]);
-      }        
+        objValue.new = EvaluationFunction.HMM(mu,sigma,Gamma,A,InitialGen[1,]);
+      }
       
       iter = iter + 1;
-      #print(c(iter,objValue.new));
+      print(c(iter,objValue.new));
       
       if(iter > maxiter)
       {
@@ -106,15 +126,14 @@ GA.MainFunction = function(mu,sigma,Gamma,y.obs,model)
 }
 
 
-GA.NewGeneration = function(mu,sigma,Gamma,originalGen,y.obs,D,model)
+GA.NewGeneration = function(mu,sigma,Gamma,A,originalGen,y.obs,D,model)
 {
-    NewGeneration = c(); #matrix(data = -999, nrow = nrow(originalGens), ncol = ncol(originalGens));
+    NewGeneration = c();
     
-    SortedFitness = GA.Evaluate(mu,sigma,Gamma,originalGen,model);
+    SortedFitness = GA.Evaluate(mu,sigma,Gamma,A,originalGen,model);
     SortedOriginalGen = GA.SortGen(originalGen,SortedFitness$ix);
     
-    NewGeneration = GA.Elitism(SortedOriginalGen);
-    #D = ncol(mu);
+    NewGeneration = GA.Elitism(SortedOriginalGen);    
     
     for(i in 1:((nrow(originalGen))/ 2 - 1))
     {
@@ -129,7 +148,7 @@ GA.NewGeneration = function(mu,sigma,Gamma,originalGen,y.obs,D,model)
     return(NewGeneration);
 }
 
-GA.Evaluate = function(mu,sigma,Gamma,originalGen,model)
+GA.Evaluate = function(mu,sigma,Gamma,A,originalGen,model)
 {
     Fitness = c();
     
@@ -139,10 +158,14 @@ GA.Evaluate = function(mu,sigma,Gamma,originalGen,model)
       {
         Fitness[i] = EvaluationFunction.UniGMM(mu,sigma,Gamma,originalGen[i,]);
       }
-      else
+      else if(model == 'Multivariate')
       {
         Fitness[i] = EvaluationFunction.MultiGMM(mu,sigma,Gamma,originalGen[i,]);
-      }                     
+      }      
+      else
+      {
+        Fitness[i] = EvaluationFunction.HMM(mu,sigma,Gamma,A,originalGen[i,]);
+      }
     }
     
     SortedFitness = sort(Fitness, index.return = TRUE);
@@ -151,7 +174,7 @@ GA.Evaluate = function(mu,sigma,Gamma,originalGen,model)
     return(SortedFitness);
 }
 
-
+# General GA functions: independent of any model
 GA.Elitism = function(sortedGeneration) # from min to max
 {
     return(sortedGeneration[c(1,2), ]);
@@ -360,7 +383,6 @@ getFeasibleRange = function(w.LB,v.LB,w.UB,v.UB,vj,wj)
   return(c(range.min,range.max));
 }
 
-# example: GA.RankSelection(InitialGen)
 GA.RankSelection = function(generation)
 {
     LabelVector = c();
@@ -380,45 +402,16 @@ GA.RankSelection = function(generation)
     return(nrow(generation) - LabelVector[Index] + 1);
 }
 
-## TEST DATA 
-# multivariate
-# mu = matrix(c(64.39,84.24,36.44,53.22,132.87,71.31,81.48,36.88,40.17,96.70,60.67,64.34,49.76,102.36,103.12),ncol=5,byrow=TRUE);
-# sigma = array(0,dim=c(5,5,3))
-# sigma[,,1] = matrix(c(674.54,-327.20,2.168,-16.58,177.27,-327.20,484.59,4.933,47.057,-63.86,2.168,4.933,9.412,-4.391,16.904,-16.583,47.057,-4.391,80.320,-168.508,177.270,-63.866,16.904,-168.508,1569.619),ncol=5,byrow=TRUE);
-# sigma[,,2] = matrix(c(607.875,-171.285,-1.695,2.683,14.407,-171.285,416.381,1.495,20.225,38.613,-1.695,1.495,14.424,-4.294,-6.834,2.683,20.225,-4.294,18.468,4.507,14.407,38.613,-6.834,4.507,33.326),ncol=5,byrow=TRUE);
-# sigma[,,3] = matrix(c(556.202,-140.974,-4.953,6.083,-4.428,-140.974,371.512,44.138,22.477,-6.369,-4.953,44.138,179.011,-146.354,-15.017,6.0873,22.477,-146.354,200.895,40.886,-4.428,-6.369,-15.017,40.886,170.937),ncol=5,byrow=TRUE)
-# Gamma = c(0.077,0.415,0.506);
-# 
-# mu2 = matrix(c(65.97,75.896,39.951,67.415,169.657,72.181,79.912,35.830,39.328,97.040,36.707,68.785,50.249,100.477,100.357,60.403,86.392,38.954,46.279,94.444,72.074,62.511,49.582,102.560,101.421),ncol=5,byrow=TRUE);
-# sigma2 = array(0,dim=c(5,5,5));
-# sigma2[,,1] = matrix(c(614.559,-210.098,-29.355,-181.795,3.713,-210.098,502.008,-37.279,-288.513,23.904,-29.244,-37.279,93.794,100.081,10.500,-181.795,-288.513,100.081,1043.551,-21.571,3.713,23.904,10.500,-21.571,100.225),ncol=5,byrow=TRUE)
-# sigma2[,,2] = matrix(c(590.936,-138.961,-2.753,9.003,15.033,-138.961,409.852,-2.174,15.753,37.589,-2.753,-2.174,3.704,-1.335,-1.640,9.003,15.753,-1.335,10.261,3.842,15.033,37.589,-1.640,3.842,28.220),ncol=5,byrow=TRUE);
-# sigma2[,,3] = matrix(c(12.151,6.799,0.763,0.876,1.202,6.799,356.246,31.066,15.291,8.628,0.763,31.066,191.711,-147.743,-10.002,0.876,15.291,-147.743,177.549,2.668,1.202,8.628,-10.002,2.668,25.406),ncol=5,byrow=TRUE);
-# sigma2[,,4] = matrix(c(673.442,-269.773,17.786,-30.793,12.824,-269.773,427.453,-6.152,30.485,45.030,17.786,-6.152,29.649,-28.981,-10.831,-30.793,30.485,-28.981,77.559,-11.433,12.824,45.030,-10.831,-11.433,56.570),ncol=5,byrow=TRUE);
-# sigma2[,,5] = matrix(c(416.181,-140.444,-1.533,-9.996,-2.728,-140.444,371.397,49.734,36.651,3.475,-1.533,49.734,170.750,-142.195,-15.053,-9.996,36.651,-142.195,191.507,18.742,-2.728,3.475,-15.053,18.742,22.505),ncol=5,byrow=TRUE);
-# Pi2 = c(0.056,0.310,0.157,0.141,0.336);
 
-#univariate
-# Pi = list()
-# Pi[[1]] = c(0.345,0.238,0.417);
-# Pi[[2]] = c(0.649,0.149,0.201);
-# Pi[[3]] = c(0.250,0.166,0.583);
-# Pi[[4]] = c(0.239,0.280,0.480);
-# Pi[[5]] = c(0.94395103,0.05604897);
-# 
-# mu = list()
-# mu[[1]] = c(89.19,39.76,58.95);
-# mu[[2]] = c(87.01,58.93,43.84);
-# mu[[3]] = c(58.78,39.60,35.60);
-# mu[[4]] = c(106.65,81.66,39.64);
-# mu[[5]] = c(98.76526,170.08265);
-# 
-# sigma = list()
-# sigma[[1]] = c(102.749,3.165,123.500);
-# sigma[[2]] = c(252.64,24.81,5.39);
-# sigma[[3]] = c(59.14,8.61,2.78);
-# sigma[[4]] = c(34.10,498.01,14.03);
-# sigma[[5]] = c(36.66009,72.18567);
+setwd("C:\\Users\\mingchen7\\Documents\\GitHub\\HMM");
+source('Parameters.R');
+source('HMM_FindMostprobableSequence.R');
 
-# GA.MainFunction(mu,sigma,Pi,244.7,'Univariate')
-# GA.MainFunction(mu2,sigma2,Pi2,244.7,'Multivariate')
+# call UNIVARIATE GMM
+# GA.MainFunction(mu,sigma,Pi,NULL,361.3,'Univariate')
+
+# call MULTIVARIATE GMM
+# GA.MainFunction(mu2,sigma2,Pi2,NULL,361.3,'Multivariate')
+
+# call HMM
+GA.MainFunction(mu3,sigma3,Pi3,A,361.3,'HMM')

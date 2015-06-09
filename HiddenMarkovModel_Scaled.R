@@ -361,10 +361,9 @@ HiddenMarkovModel = function(data,mu.init,sigma.init,pi.init,A.init)
 }                      
 
 # example: 
-setwd("C:\\Users\\mingchen7\\Documents\\GitHub\\HiddenMarkovModel");
+setwd("C:\\Users\\mingchen7\\Documents\\GitHub\\HMM");
 
 # loading data
-#load('LinkTT_10runs.RData');
 load('LinkTT_10hours.RData')
 data = tt.WB[,c(3:7)];
 
