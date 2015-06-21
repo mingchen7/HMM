@@ -360,32 +360,32 @@ HiddenMarkovModel = function(data,mu.init,sigma.init,pi.init,A.init)
 }                      
 
 # example: 
-setwd("C:\\Users\\mingchen7\\Documents\\GitHub\\HMM");
-load('LinkTT_10hours.RData')
-data = tt.WB[,c(3:7)];
-
-# initializing parameters
-source('Parameters.R')
-mu.init = mu;
-sigma.init = sigma;
-pi.init = Pi[[1]];  # first link
-
-D = length(mu.init);
-A.init = list();
-for(i in 1:(D-1))
-{
-  K1 = length(mu.init[[i]]);
-  K2 = length(mu.init[[i+1]]);
-  A.init[[i]] = matrix(0,nrow=K1,ncol=K2,byrow=TRUE);
-  
-  #generating K1xK2 random numbers with summation of 1  
-  for(j in 1:K1)
-  {
-    rnd = runif(K2);
-    rnd = rnd / sum(rnd);
-    A.init[[i]][j,] = rnd;
-  }  
-}
-
-HiddenMarkovModel(data, mu.init, sigma.init, pi.init, A.init);
+# setwd("C:\\Users\\mingchen7\\Documents\\GitHub\\HMM");
+# load('LinkTT_10hours.RData')
+# data = tt.WB[,c(3:7)];
+# 
+# # initializing parameters
+# source('Parameters.R')
+# mu.init = mu;
+# sigma.init = sigma;
+# pi.init = Pi[[1]];  # first link
+# 
+# D = length(mu.init);
+# A.init = list();
+# for(i in 1:(D-1))
+# {
+#   K1 = length(mu.init[[i]]);
+#   K2 = length(mu.init[[i+1]]);
+#   A.init[[i]] = matrix(0,nrow=K1,ncol=K2,byrow=TRUE);
+#   
+#   #generating K1xK2 random numbers with summation of 1  
+#   for(j in 1:K1)
+#   {
+#     rnd = runif(K2);
+#     rnd = rnd / sum(rnd);
+#     A.init[[i]][j,] = rnd;
+#   }  
+# }
+# 
+# HiddenMarkovModel(data, mu.init, sigma.init, pi.init, A.init);
 

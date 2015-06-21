@@ -1,13 +1,18 @@
+rm(list=ls())
 setwd("C:\\Users\\mingchen7\\Documents\\GitHub\\HMM");
-load('LinkTT_10runs.RData');
-
 source("GA_TravelTimeAllocation.R");
 source('HMM_FindMostprobableSequence.R');
 source('Parameters.R');
 
-row.num = sample(1:nrow(tt.WB),1000);
-dataset = tt.WB[row.num,];
-proportion = c(0.192,0.229,0.199,0.189,0.191); #used for Benchmark method
+
+# load('LinkTT_10hours.RData');
+load('TrajectoryData_WestSpeedway_WB.RData');
+
+row.num = sample(1:nrow(trajectory),1000);
+dataset = trajectory[row.num,];
+dataset$sum = dataset$Camp2Mnt+dataset$Mnt2Park+dataset$Park2Euclid;
+# proportion = c(0.192,0.229,0.199,0.189,0.191); #used for Benchmark method
+proportion = c(0.5405105,0.2807991,0.1786903);
 
 x.benchmark = list();
 MAPE.benchmark = data.frame();
@@ -29,10 +34,10 @@ for(n in 1:1000)
 {  
   cat('n = ',n,'\n');
   
-  y.obs = dataset[n,2];
-  x.obs = dataset[n,c(3:7)];
+  y.obs = dataset[n,6];
+  x.obs = dataset[n,c(3:5)];
   
-  cat('Obs.:            ',x.obs$tt2,x.obs$tt3,x.obs$tt4,x.obs$tt5,x.obs$tt6,'\n');
+  cat('Obs.:            ',x.obs$Camp2Mnt,x.obs$Mnt2Park,x.obs$Park2Euclid,'\n');
   
   # Benchmark method
   x = proportion * y.obs;

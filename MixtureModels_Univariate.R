@@ -3,7 +3,7 @@ library(lubridate)
 library(mixtools)
 library(MASS)
 
-GassuianMixture = function(data, numCluster)
+GaussianMixture = function(data, numCluster)
 {
     # using Kmeans to cluster the data first  
     KmeansCluster = kmeans(data, numCluster, iter.max = 20, algorithm = 'Hartigan-Wong');
@@ -115,6 +115,6 @@ GassuianMixture = function(data, numCluster)
 }
 
 # example: 
-setwd("C:\\Users\\mingchen7\\Documents\\GitHub\\HMM");
-load('LinkTT_10hours.RData')
-GassuianMixture(tt.WB$tt4,2)
+# setwd("C:\\Users\\mingchen7\\Documents\\GitHub\\HMM");
+# load('LinkTT_10hours.RData')
+# Gaussian(tt.WB$tt4,2)

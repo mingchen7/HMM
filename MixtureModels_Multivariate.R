@@ -125,6 +125,6 @@ GassuianMixture_Multi = function(data, numCluster)
 }
 
 # example: 
-setwd("C:\\Users\\mingchen7\\Documents\\GitHub\\HMM");
-load('LinkTT_10hours.RData'); 
-GassuianMixture_Multi(tt.WB[,c(3:7)],3);
+# setwd("C:\\Users\\mingchen7\\Documents\\GitHub\\HMM");
+# load('LinkTT_10hours.RData'); 
+# GassuianMixture_Multi(tt.WB[,c(3:7)],3);
