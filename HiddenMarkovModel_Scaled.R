@@ -251,7 +251,7 @@ HiddenMarkovModel = function(data,mu.init,sigma.init,pi.init,A.init)
   CompLogLikelihood = c(0);
   
   # main loop for evaluating parameters
-  for(iter in 1:100)
+  for(iter in 1:80)
   {
     # E-step
     # Evaluate gamma and ksi
@@ -350,11 +350,11 @@ HiddenMarkovModel = function(data,mu.init,sigma.init,pi.init,A.init)
   plot(x = 1:length(LogLikelihood), y = LogLikelihood, xlab='iteration',type = 'l');
   
   results  = list();
-  results$pi = pi;
-  results$mu = mu;
-  results$sigma = sigma;
+  results$Pi = pi;
+  results$Mu = mu;
+  results$Sigma = sigma;
   results$A.transition = A;
-  results$loglikelihood = LogLikelihood[length(LogLikelihood)];
+  results$Loglikelihood = LogLikelihood[length(LogLikelihood)];
   
   return(results);    
 }                      

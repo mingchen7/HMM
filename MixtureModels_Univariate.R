@@ -78,6 +78,7 @@ GaussianMixture = function(data, numCluster)
     
     
     #Plotting
+    #dev.off();
     layout(matrix(c(1:4), 2, 2, byrow = TRUE));
     
     MinData = min(data); MaxData = max(data);

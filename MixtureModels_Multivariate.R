@@ -112,7 +112,7 @@ GassuianMixture_Multi = function(data, numCluster)
 #         print(Mu);
 #         print(Sigma);
     }
-            
+        
     plot(x = 1:length(LogLikelihood), y = LogLikelihood, xlab='iteration',type = 'l');
     
     Estimation  = list();
