@@ -37,10 +37,10 @@ EvaluationFunction.MultiGMM = function(mu, sigma, Gamma, x)
 }
 
 
-EvaluationFunction.HMM = function(mu,sigma,pi,A,x)
+EvaluationFunction.HMM = function(mu,sigma,Pi,A,x)
 {
   LogLikelihood = -Inf;
-  LogLikelihood = Viterbi(x,mu,sigma,pi,A);
+  LogLikelihood = Viterbi(x,mu,sigma,Pi,A);
   return(-LogLikelihood);
 }
 

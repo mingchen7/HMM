@@ -1,7 +1,7 @@
 rm(list=ls())
 setwd("C:\\Users\\mingchen7\\Documents\\GitHub\\HMM");
 source("GA_TravelTimeAllocation.R");
-source('HMM_FindMostprobableSequence.R');
+source('HMM_FindMostProbableSequence.R');
 source('Parameters.R');
 
 

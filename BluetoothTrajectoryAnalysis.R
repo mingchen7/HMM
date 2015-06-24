@@ -9,7 +9,7 @@ library("mitools")
 setwd("C:\\Users\\mingchen7\\Documents\\GitHub\\HMM");
 source("MixtureModels_Univariate.R")
 source("MixtureModels_Multivariate.R")
-source("HiddenmarkovModel_Scaled.R")
+source("HiddenMarkovModel_Scaled.R")
 
 ####################################### 
 ## West Speedway section - Westbound ##

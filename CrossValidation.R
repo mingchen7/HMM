@@ -2,12 +2,12 @@ library("caret")
 setwd("C:\\Users\\mingchen7\\Documents\\GitHub\\HMM");
 
 source("GA_TravelTimeAllocation.R");
-source('HMM_FindMostprobableSequence.R');
+source('HMM_FindMostProbableSequence.R');
 source("MixtureModels_Univariate.R");
 source("MixtureModels_Multivariate.R");
 source("HiddenmarkovModel_Scaled.R");
 
-sink('Log.txt');
+# sink('Log.txt');
 
 CrossValidation = function(data,nfolds,proportion)
 {
@@ -150,17 +150,18 @@ CrossValidation = function(data,nfolds,proportion)
     output[[run]]$x.HMM = x.HMM;
     output[[run]]$MAE.HMM = MAE.HMM;
     output[[run]]$MAPE.HMM = MAPE.HMM;
-  }
-  
+  }  
   return(output);  
 }
 
 # load data
 load('TrajectoryData_MidSpeedway_EB.RData');
+#load('TrajectoryData_WestSpeedway_WB.RData');
 
 #proportion.SimuData = c(0.192,0.229,0.199,0.189,0.191);
 #proportion.WestSpeedway_WB = c(0.5405105,0.2807991,0.1786903);
 proportion.MidSpeedway_EB = c(0.125725,0.124182,0.124481,0.123237,0.256225,0.24615);
 results = CrossValidation(trajectory[,2:7],10,proportion.MidSpeedway_EB);
-
+save(results,file='Result_CrossValidation_MidSpeedway_EB.RData');
+#save(results,file='Result_CrossValidation_WestSpeedway_WB.RData');
 
