@@ -7,6 +7,8 @@ source("MixtureModels_Univariate.R");
 source("MixtureModels_Multivariate.R");
 source("HiddenmarkovModel_Scaled.R");
 
+sink('Log.txt');
+
 CrossValidation = function(data,nfolds,proportion)
 {
   K.uniGMM = 3;
@@ -22,6 +24,7 @@ CrossValidation = function(data,nfolds,proportion)
   # loop for cross-validation
   for(run in 1:10)
   {
+    cat('Current Run: ',run,'\n');
     idx.validation = folds[[order[run]]];
     # specify training dataset
     data.training = data[-idx.validation,];
@@ -90,14 +93,14 @@ CrossValidation = function(data,nfolds,proportion)
     {      
       x.obs = data.validation[n,];
       y.obs = sum(x.obs);      
-      cat('n = ',n,': ');
+      cat('n = ',n,'\n');
       print(x.obs);      
       
       # Benchmark method
       x = proportion * y.obs;
       MAE = abs(x - x.obs);
       MAPE = abs(x - x.obs) / x.obs;      
-      cat('Benchmark:',x,'\n');      
+      cat('Benchmark:       ',x,'\n');      
       x.benchmark = rbind(x.benchmark,x);
       MAE.benchmark = rbind(MAE.benchmark,MAE);
       MAPE.benchmark = rbind(MAPE.benchmark,MAPE);
@@ -107,7 +110,7 @@ CrossValidation = function(data,nfolds,proportion)
       x = out.Uni$solution;
       MAE = abs(x - x.obs);
       MAPE = abs(x - x.obs) / x.obs;      
-      cat('Univariate GMM:',x,'\n');
+      cat('Univariate GMM:  ',x,'\n');
       x.UniGMM = rbind(x.UniGMM,x);      
       MAE.UniGMM = rbind(MAE.UniGMM,MAE);
       MAPE.UniGMM = rbind(MAPE.UniGMM,MAPE);  
@@ -127,7 +130,7 @@ CrossValidation = function(data,nfolds,proportion)
       x = out.HMM$solution;
       MAE = abs(x - x.obs);
       MAPE = abs(x - x.obs) / x.obs;      
-      cat('HMM:',x,'\n');
+      cat('HMM:             ',x,'\n');
       x.HMM = rbind(x.HMM,x);      
       MAE.HMM = rbind(MAE.HMM,MAE);
       MAPE.HMM = rbind(MAPE.HMM,MAPE);       
@@ -149,6 +152,7 @@ CrossValidation = function(data,nfolds,proportion)
     output[[run]]$MAPE.HMM = MAPE.HMM;
   }
   
+  return(output);  
 }
 
 # load data
